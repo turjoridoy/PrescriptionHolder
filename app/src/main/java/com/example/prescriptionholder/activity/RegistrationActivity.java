@@ -15,6 +15,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 
 import android.text.TextUtils;
+import android.util.Log;
 import android.util.Patterns;
 import android.view.View;
 import android.widget.AdapterView;
@@ -154,6 +155,7 @@ public class RegistrationActivity extends AppCompatActivity{
             @Override
             protected void onPostExecute(String s) {
                 super.onPostExecute(s);
+                Log.e("response",s);
                 //hiding the progressbar after completion
                 progressBar.setVisibility(View.GONE);
 
@@ -162,31 +164,22 @@ public class RegistrationActivity extends AppCompatActivity{
                     //converting response to json object
                     JSONObject obj = new JSONObject(s);
 
-                    //if no error in response
-                    if (!obj.getBoolean("error")) {
-                        Toast.makeText(getApplicationContext(), obj.getString("message"), Toast.LENGTH_SHORT).show();
+                    //creating a new user object
+                    User user = new User(
+                            obj.getInt("id"),
+                            obj.getString("name"),
+                            obj.getString("email"),
+                            obj.getBoolean("is_doctor"),
+                            obj.getString("password")
+                    );
 
-                        //creating a new user object
-                        User user = new User(
-                                obj.getInt("id"),
-                                obj.getString("name"),
-                                obj.getString("email"),
-                                obj.getBoolean("is_doctor"),
-                                obj.getString("phone"),
-                                obj.getString("password")
-                        );
-
-                        //storing the user in shared preferences
-                        SharedPrefManager.getInstance(getApplicationContext()).userLogin(user);
-
-                        //starting the profile activity
-                        finish();
-                        startActivity(new Intent(getApplicationContext(), MainActivity.class));
-                    } else {
-                        Toast.makeText(getApplicationContext(), "Some error occurred", Toast.LENGTH_SHORT).show();
-                    }
+                    //storing the user in shared preferences
+                    Log.e("here",user.getEmail());
+                    SharedPrefManager.getInstance(getApplicationContext()).userLogin(user);
+                    finish();
+                    startActivity(new Intent(getApplicationContext(), MainActivity.class));
                 } catch (JSONException e) {
-                    e.printStackTrace();
+                    Log.e("asd",e.toString());
                 }
             }
         }

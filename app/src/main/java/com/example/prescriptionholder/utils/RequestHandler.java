@@ -1,6 +1,15 @@
 package com.example.prescriptionholder.utils;
 
 
+import android.util.Log;
+
+import com.android.volley.Request;
+import com.android.volley.RequestQueue;
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.StringRequest;
+import com.android.volley.toolbox.Volley;
+
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.InputStreamReader;
@@ -48,8 +57,7 @@ public class RequestHandler {
             writer.close();
             os.close();
             int responseCode = conn.getResponseCode();
-
-            if (responseCode == HttpsURLConnection.HTTP_OK) {
+            Log.e("responseCode",responseCode+"");
 
                 BufferedReader br = new BufferedReader(new InputStreamReader(conn.getInputStream()));
                 sb = new StringBuilder();
@@ -58,13 +66,18 @@ public class RequestHandler {
                 while ((response = br.readLine()) != null) {
                     sb.append(response);
                 }
-            }
+
 
         } catch (Exception e) {
-            e.printStackTrace();
+            Log.e("Asd",e.toString());
         }
         return sb.toString();
     }
+
+
+
+
+
 
 
     //this method is converting keyvalue pairs data into a query string as needed to send to the server

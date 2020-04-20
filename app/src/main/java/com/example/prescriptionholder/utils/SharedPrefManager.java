@@ -4,6 +4,7 @@ package com.example.prescriptionholder.utils;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.util.Log;
 
 import com.example.prescriptionholder.activity.LoginActivity;
 import com.example.prescriptionholder.model.User;
@@ -24,7 +25,7 @@ public class SharedPrefManager {
     private static SharedPrefManager mInstance;
     private static Context mCtx;
 
-    private SharedPrefManager(Context context) {
+    public SharedPrefManager(Context context) {
         mCtx = context;
     }
 
@@ -38,13 +39,13 @@ public class SharedPrefManager {
     //method to let the user login
     //this method will store the user data in shared preferences
     public void userLogin(User user) {
+        Log.e("user",user.getEmail());
         SharedPreferences sharedPreferences = mCtx.getSharedPreferences(SHARED_PREF_NAME, Context.MODE_PRIVATE);
         SharedPreferences.Editor editor = sharedPreferences.edit();
         editor.putInt(KEY_ID, user.getId());
         editor.putString(KEY_USERNAME, user.getName());
         editor.putString(KEY_EMAIL, user.getEmail());
         editor.putBoolean(KEY_TYPE, user.getUsertype());
-        editor.putString(KEY_PHONE, user.getPhone());
         editor.putString(KEY_PASSWORD, user.getPassword());
         editor.apply();
     }
@@ -63,7 +64,6 @@ public class SharedPrefManager {
                 sharedPreferences.getString(KEY_USERNAME, null),
                 sharedPreferences.getString(KEY_EMAIL, null),
                 sharedPreferences.getBoolean(KEY_TYPE, false),
-                sharedPreferences.getString(KEY_PHONE, null),
                 sharedPreferences.getString(KEY_PASSWORD, null)
         );
     }

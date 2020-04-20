@@ -6,22 +6,32 @@ import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ProgressBar;
 import android.widget.Toast;
 
+import com.android.volley.Request;
+import com.android.volley.RequestQueue;
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.StringRequest;
+import com.android.volley.toolbox.Volley;
 import com.example.prescriptionholder.R;
 import com.example.prescriptionholder.api.URLs;
 import com.example.prescriptionholder.model.User;
 import com.example.prescriptionholder.utils.RequestHandler;
 import com.example.prescriptionholder.utils.SharedPrefManager;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 
 public class LoginActivity extends AppCompatActivity {
 
@@ -40,96 +50,57 @@ public class LoginActivity extends AppCompatActivity {
         btnLogin.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                userLogin();
+                sendGETRequest("http://18.217.127.10:8009/user/login/?email="+eTemail.getText().toString()+"&password="+eTpass.getText().toString());
+
             }
 
         });
     }
 
-    private void userLogin() {
-        //first getting the values
-        final String email = eTemail.getText().toString();
-        final String password = eTpass.getText().toString();
 
-        //validating inputs
-        if (TextUtils.isEmpty(email)) {
-            eTemail.setError("Please enter your email");
-            eTemail.requestFocus();
-            return;
-        }
-
-        if (TextUtils.isEmpty(password)) {
-            eTpass.setError("Please enter your password");
-            eTpass.requestFocus();
-            return;
-        }
-
-        //if everything is fine
-
-        class UserLogin extends AsyncTask<Void, Void, String> {
-
-            ProgressBar progressBar;
-
-            @Override
-            protected void onPreExecute() {
-                super.onPreExecute();
-                progressBar = (ProgressBar) findViewById(R.id.progressBar);
-                progressBar.setVisibility(View.VISIBLE);
-            }
-
-            @Override
-            protected void onPostExecute(String s) {
-                super.onPostExecute(s);
-                progressBar.setVisibility(View.GONE);
+    public void sendGETRequest(String requestURL) {
+        // Instantiate the RequestQueue.
+        RequestQueue queue = Volley.newRequestQueue(this);
 
 
-                try {
-                    //converting response to json object
-                    JSONObject obj = new JSONObject(s);
+// Request a string response from the provided URL.
+        StringRequest stringRequest = new StringRequest(Request.Method.GET, requestURL,
+                new Response.Listener<String>() {
+                    @Override
+                    public void onResponse(String response) {
+                        try {
+                            JSONObject obj = new JSONObject(response);
 
-                    //if no error in response
-                    if (!obj.getBoolean("error")) {
-                        Toast.makeText(getApplicationContext(), obj.getString("message"), Toast.LENGTH_SHORT).show();
+                            //creating a new user object
+                            User user = new User(
+                                    obj.getInt("id"),
+                                    obj.getString("name"),
+                                    obj.getString("email"),
+                                    obj.getBoolean("is_doctor"),
+                                    obj.getString("password")
+                            );
 
-                        //creating a new user object
-                        User user = new User(
-                                obj.getInt("id"),
-                                obj.getString("name"),
-                                obj.getString("email"),
-                                obj.getBoolean("is_doctor"),
-                                obj.getString("phone"),
-                                obj.getString("password")
-                        );
-                        //storing the user in shared preferences
-                        SharedPrefManager.getInstance(getApplicationContext()).userLogin(user);
-
-                        //starting the profile activity
-                        finish();
-                        startActivity(new Intent(getApplicationContext(), MainActivity.class));
-                    } else {
-                        Toast.makeText(getApplicationContext(), "Invalid username or password", Toast.LENGTH_SHORT).show();
+                            //storing the user in shared preferences
+                            Log.e("here",user.getEmail());
+                            SharedPrefManager.getInstance(getApplicationContext()).userLogin(user);
+                            finish();
+                            startActivity(new Intent(getApplicationContext(), MainActivity.class));
+                        }catch (Exception e){
+                            Toast.makeText(LoginActivity.this, "Wrong ID / Password !", Toast.LENGTH_SHORT).show();
+                        }
                     }
-                } catch (JSONException e) {
-                    e.printStackTrace();
-                }
-            }
-
+                }, new Response.ErrorListener() {
             @Override
-            protected String doInBackground(Void... voids) {
-                //creating request handler object
-                RequestHandler requestHandler = new RequestHandler();
-
-                //creating request parameters
-                HashMap<String, String> params = new HashMap<>();
-                params.put("email", email);
-                params.put("password", password);
-
-                //returing the response
-                return requestHandler.sendPostRequest(URLs.URL_LOGIN, params);
+            public void onErrorResponse(VolleyError error) {
+                Log.e("error",error.getMessage());
             }
-        }
+        });
 
-        UserLogin ul = new UserLogin();
-        ul.execute();
+// Add the request to the RequestQueue.
+        queue.add(stringRequest);
     }
+
+
+
+
 }

@@ -12,6 +12,7 @@ import android.widget.Toolbar;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.prescriptionholder.R;
+import com.example.prescriptionholder.utils.SharedPrefManager;
 
 public class SplashScreen extends AppCompatActivity {
 
@@ -24,6 +25,7 @@ public class SplashScreen extends AppCompatActivity {
         setContentView(R.layout.activity_splash_screen);
 
 
+
         new Handler().postDelayed(new Runnable() {
 
             /*
@@ -32,9 +34,15 @@ public class SplashScreen extends AppCompatActivity {
 
             @Override
             public void run() {
-                // Start your app main activity
-                Intent i = new Intent(SplashScreen.this, UserActivity.class);
-                startActivity(i);
+                SharedPrefManager sharedPrefManager=new SharedPrefManager(SplashScreen.this);
+               if(sharedPrefManager.isLoggedIn()){
+                   Intent i = new Intent(SplashScreen.this, MainActivity.class);
+                   startActivity(i);
+               }else{
+                   Intent i = new Intent(SplashScreen.this, UserActivity.class);
+                   startActivity(i);
+               }
+
 
                 // close this activity
                 finish();
