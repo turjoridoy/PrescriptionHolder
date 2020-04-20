@@ -1,0 +1,119 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:fillViewport="false">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        android:layout_margin="40dp"
+        android:layout_gravity="center"
+        android:gravity="center"
+        tools:context=".activity.RegistrationActivity">
+
+        <ImageView
+            android:id="@+id/imgLogo"
+            android:layout_width="80dp"
+            android:layout_height="80dp"
+            android:layout_marginBottom="40dp"
+            android:src="@drawable/logo" />
+
+        <EditText
+            android:id = "@+id/eTname"
+            android:layout_width = "match_parent"
+            android:layout_height = "wrap_content"
+            android:hint="Full Name"
+            android:padding="15dp"
+            android:layout_marginBottom="20dp"
+            android:inputType = "text" />
+
+
+        <EditText
+            android:id = "@+id/eTphone"
+            android:layout_width = "match_parent"
+            android:layout_height = "wrap_content"
+            android:hint="Phone Number"
+            android:padding="15dp"
+            android:layout_marginBottom="20dp"
+            android:inputType = "text" />
+
+
+        <EditText
+            android:id = "@+id/eTemail"
+            android:layout_width = "match_parent"
+            android:layout_height = "wrap_content"
+            android:hint="Enter Email"
+            android:padding="15dp"
+            android:layout_marginBottom="20dp"
+            android:inputType = "text" />
+
+
+        <EditText
+            android:id = "@+id/eTpass"
+            android:layout_width = "match_parent"
+            android:layout_height = "wrap_content"
+            android:hint="Enter Password"
+            android:padding="15dp"
+            android:layout_marginBottom="20dp"
+            android:inputType = "textPassword" />
+
+        <EditText
+            android:id = "@+id/eTconfirmpass"
+            android:layout_width = "match_parent"
+            android:layout_height = "wrap_content"
+            android:hint="Confirm Password"
+            android:layout_marginBottom="20dp"
+            android:padding="15dp"
+            android:inputType="textPassword"
+            />
+
+        <RadioGroup
+            android:id="@+id/radioUser"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="8dp"
+            android:layout_marginTop="8dp"
+            android:orientation="horizontal">
+
+            <RadioButton
+                android:id="@+id/radioButtonMale"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:checked="true"
+                android:layout_marginRight="60px"
+                android:text="Patient" />
+
+
+            <RadioButton
+                android:id="@+id/radioButtonFemale"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Doctor" />
+
+        </RadioGroup>
+
+        <Button
+            android:id = "@+id/btnReg"
+            android:layout_width = "wrap_content"
+            android:layout_height = "wrap_content"
+            android:text = "Registration"
+            android:background="@color/colorPrimary"
+            android:padding="15dp"
+            android:textColor="@color/white"
+            android:layout_marginTop="40dp"/>
+
+        <ProgressBar
+            android:visibility="gone"
+            android:id="@+id/progressBar"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerHorizontal="true"
+            android:layout_centerVertical="true" />
+
+    </LinearLayout>
+
+</ScrollView>
