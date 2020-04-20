@@ -9,6 +9,7 @@ import android.widget.LinearLayout;
 
 import androidx.appcompat.app.AppCompatActivity;
 import com.example.prescriptionholder.R;
+import com.example.prescriptionholder.utils.SharedPrefManager;
 
 
 public class MainActivity extends AppCompatActivity {
@@ -57,9 +58,8 @@ public class MainActivity extends AppCompatActivity {
         logout.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Intent i = new Intent(getApplicationContext(),AddActivity.class);
-                startActivity(i);
-
+                finish();
+                SharedPrefManager.getInstance(getApplicationContext()).logout();
             }
         });
 

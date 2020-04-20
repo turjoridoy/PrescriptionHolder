@@ -45,4 +45,12 @@
         android:textColor="@color/white"
         android:layout_marginTop="20dp"/>
 
+    <ProgressBar
+        android:visibility="gone"
+        android:id="@+id/progressBar"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerHorizontal="true"
+        android:layout_centerVertical="true" />
+
 </LinearLayout>

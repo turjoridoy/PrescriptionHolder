@@ -3,9 +3,10 @@ package com.example.prescriptionholder.model;
 public class User {
 
     private int id;
-    private String name, email, usertype, phone, password;
+    private String name, email, phone, password;
+    private boolean usertype;
 
-    public User(int id, String name, String email, String usertype, String phone, String password) {
+    public User(int id, String name, String email, boolean usertype, String phone, String password) {
         this.id = id;
         this.name = name;
         this.email = email;
@@ -26,7 +27,7 @@ public class User {
         return email;
     }
 
-    public String getUsertype() {
+    public boolean getUsertype() {
         return usertype;
     }
 

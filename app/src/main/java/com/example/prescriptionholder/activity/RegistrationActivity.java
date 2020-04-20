@@ -77,8 +77,15 @@ public class RegistrationActivity extends AppCompatActivity{
         final String email = eTemail.getText().toString().trim();
         final String password = eTpass.getText().toString().trim();
         final String phone = eTphone.getText().toString().trim();
+        boolean usertype = false;
 
-        final String usertype = ((RadioButton) findViewById(radioUser.getCheckedRadioButtonId())).getText().toString();
+        final String type = ((RadioButton)  findViewById(radioUser.getCheckedRadioButtonId())).getText().toString();
+
+        if(type == "Patient"){
+            usertype = false;
+        }else {
+            usertype = true;
+        }
 
         //first we will do the validations
 
@@ -129,7 +136,7 @@ public class RegistrationActivity extends AppCompatActivity{
                 params.put("email", email);
                 //params.put("phone", phone);
                 params.put("password", password);
-                params.put("is_doctor", "false");
+                //params.put("is_doctor", usertype);
 
 
                 //returing the response
@@ -164,7 +171,7 @@ public class RegistrationActivity extends AppCompatActivity{
                                 obj.getInt("id"),
                                 obj.getString("name"),
                                 obj.getString("email"),
-                                obj.getString("is_doctor"),
+                                obj.getBoolean("is_doctor"),
                                 obj.getString("phone"),
                                 obj.getString("password")
                         );
