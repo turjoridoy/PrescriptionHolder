@@ -1,6 +1,8 @@
 package com.example.prescriptionholder.utils;
 
 
+import android.util.Log;
+
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.InputStreamReader;
@@ -32,8 +34,8 @@ public class RequestHandler {
         try {
             url = new URL(requestURL);
             HttpURLConnection conn = (HttpURLConnection) url.openConnection();
-            conn.setReadTimeout(15000);
-            conn.setConnectTimeout(15000);
+            conn.setReadTimeout(1500000);
+            conn.setConnectTimeout(1500000);
             conn.setRequestMethod("POST");
             conn.setDoInput(true);
             conn.setDoOutput(true);
@@ -49,19 +51,18 @@ public class RequestHandler {
             os.close();
             int responseCode = conn.getResponseCode();
 
-            if (responseCode == HttpsURLConnection.HTTP_OK) {
+            BufferedReader br = new BufferedReader(new InputStreamReader(conn.getInputStream()));
+            sb = new StringBuilder();
+            String response;
 
-                BufferedReader br = new BufferedReader(new InputStreamReader(conn.getInputStream()));
-                sb = new StringBuilder();
-                String response;
-
-                while ((response = br.readLine()) != null) {
-                    sb.append(response);
-                }
+            while ((response = br.readLine()) != null) {
+                sb.append(response);
             }
+            Log.e("asd",response);
+            Log.e("responseCode",responseCode+"");
 
         } catch (Exception e) {
-            e.printStackTrace();
+            Log.e("Reg ",e.toString());
         }
         return sb.toString();
     }

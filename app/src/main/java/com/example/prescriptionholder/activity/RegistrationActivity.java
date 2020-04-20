@@ -15,6 +15,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 
 import android.text.TextUtils;
+import android.util.Log;
 import android.util.Patterns;
 import android.view.View;
 import android.widget.AdapterView;
@@ -156,7 +157,7 @@ public class RegistrationActivity extends AppCompatActivity{
                 super.onPostExecute(s);
                 //hiding the progressbar after completion
                 progressBar.setVisibility(View.GONE);
-
+                Log.e("ssss",s);
 
                 try {
                     //converting response to json object
