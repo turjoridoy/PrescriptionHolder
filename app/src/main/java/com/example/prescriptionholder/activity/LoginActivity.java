@@ -13,21 +13,29 @@ import android.widget.EditText;
 import android.widget.ProgressBar;
 import android.widget.Toast;
 
+import com.android.volley.AuthFailureError;
+import com.android.volley.Request;
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.StringRequest;
 import com.example.prescriptionholder.R;
 import com.example.prescriptionholder.api.URLs;
 import com.example.prescriptionholder.model.User;
 import com.example.prescriptionholder.utils.RequestHandler;
 import com.example.prescriptionholder.utils.SharedPrefManager;
+import com.example.prescriptionholder.utils.VolleySingleton;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.HashMap;
+import java.util.Map;
 
 public class LoginActivity extends AppCompatActivity {
 
     EditText eTemail, eTpass;
     Button btnLogin;
+    ProgressBar progressBar;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -37,6 +45,7 @@ public class LoginActivity extends AppCompatActivity {
         btnLogin = findViewById(R.id.btnLogin);
         eTemail = findViewById(R.id.eTemail);
         eTpass = findViewById(R.id.eTpass);
+        progressBar = findViewById(R.id.progressBar);
 
         btnLogin.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -66,72 +75,65 @@ public class LoginActivity extends AppCompatActivity {
         }
 
         //if everything is fine
+        StringRequest stringRequest = new StringRequest(Request.Method.POST, URLs.URL_LOGIN+"?email="+email+"&password="+password,
+                new Response.Listener<String>() {
+                    @Override
+                    public void onResponse(String response) {
+                        progressBar.setVisibility(View.GONE);
 
-        class UserLogin extends AsyncTask<Void, Void, String> {
+                        Log.e("Saaa",response);
 
-            ProgressBar progressBar;
+                        try {
+                            //converting response to json object
+                            JSONObject obj = new JSONObject(response);
 
-            @Override
-            protected void onPreExecute() {
-                super.onPreExecute();
-                progressBar = (ProgressBar) findViewById(R.id.progressBar);
-                progressBar.setVisibility(View.VISIBLE);
-            }
-
-            @Override
-            protected void onPostExecute(String s) {
-                super.onPostExecute(s);
-                progressBar.setVisibility(View.GONE);
+                            //if no error in response
+                            if (!obj.getBoolean("error")) {
+                                Toast.makeText(getApplicationContext(), obj.getString("message"), Toast.LENGTH_SHORT).show();
 
 
-                try {
-                    //converting response to json object
-                    JSONObject obj = new JSONObject(s);
-                    Log.e("Response",s);
+                                //creating a new user object
+                                User user = new User(
+                                        obj.getInt("id"),
+                                        obj.getString("name"),
+                                        obj.getString("email"),
+                                        obj.getBoolean("is_doctor"),
+                                        obj.getString("phone"),
+                                        obj.getString("password")
+                                );
 
-                    //if no error in response
-                    if (!obj.getBoolean("error")) {
-                        Toast.makeText(getApplicationContext(), obj.getString("message"), Toast.LENGTH_SHORT).show();
+                                //storing the user in shared preferences
+                                SharedPrefManager.getInstance(getApplicationContext()).userLogin(user);
 
-                        //creating a new user object
-                        User user = new User(
-                                obj.getInt("id"),
-                                obj.getString("name"),
-                                obj.getString("email"),
-                                obj.getBoolean("is_doctor"),
-                                obj.getString("phone"),
-                                obj.getString("password")
-                        );
-                        //storing the user in shared preferences
-                        SharedPrefManager.getInstance(getApplicationContext()).userLogin(user);
-
-                        //starting the profile activity
-                        finish();
-                        startActivity(new Intent(getApplicationContext(), MainActivity.class));
-                    } else {
-                        Toast.makeText(getApplicationContext(), "Invalid username or password", Toast.LENGTH_SHORT).show();
+                                //starting the profile activity
+                                finish();
+                                startActivity(new Intent(getApplicationContext(), MainActivity.class));
+                            } else {
+                                Toast.makeText(getApplicationContext(), obj.getString("message"), Toast.LENGTH_SHORT).show();
+                            }
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
                     }
-                } catch (JSONException e) {
-                    e.printStackTrace();
-                }
-            }
-
+                },
+                new Response.ErrorListener() {
+                    @Override
+                    public void onErrorResponse(VolleyError error) {
+                        Toast.makeText(getApplicationContext(), error.getMessage(), Toast.LENGTH_SHORT).show();
+                    }
+                }) {
             @Override
-            protected String doInBackground(Void... voids) {
-                //creating request handler object
-                RequestHandler requestHandler = new RequestHandler();
-
+            protected Map<String, String> getParams() throws AuthFailureError {
                 //creating request parameters
                 HashMap<String, String> params = new HashMap<>();
                 params.put("email", email);
                 params.put("password", password);
-
-                //returing the response
-                return requestHandler.sendPostRequest(URLs.URL_LOGIN, params);
+                return params;
             }
-        }
+        };
 
-        UserLogin ul = new UserLogin();
-        ul.execute();
+        VolleySingleton.getInstance(this).addToRequestQueue(stringRequest);
+
+
     }
 }

@@ -4,10 +4,16 @@ import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
 
+import com.android.volley.AuthFailureError;
+import com.android.volley.Request;
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.StringRequest;
 import com.example.prescriptionholder.api.URLs;
 import com.example.prescriptionholder.model.User;
 import com.example.prescriptionholder.utils.RequestHandler;
 import com.example.prescriptionholder.utils.SharedPrefManager;
+import com.example.prescriptionholder.utils.VolleySingleton;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.snackbar.Snackbar;
 
@@ -15,7 +21,6 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 
 import android.text.TextUtils;
-import android.util.Log;
 import android.util.Patterns;
 import android.view.View;
 import android.widget.AdapterView;
@@ -35,12 +40,14 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.HashMap;
+import java.util.Map;
 
 public class RegistrationActivity extends AppCompatActivity{
 
     EditText eTname,eTphone, eTemail, eTpass,eTconfirmpass;
     Button btnReg;
     RadioGroup  radioUser;
+    ProgressBar progressBar;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -61,6 +68,7 @@ public class RegistrationActivity extends AppCompatActivity{
         eTconfirmpass = findViewById(R.id.eTconfirmpass);
         radioUser = findViewById(R.id.radioUser);
         btnReg = findViewById(R.id.btnReg);
+        progressBar = (ProgressBar) findViewById(R.id.progressBar);
 
         btnReg.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -120,81 +128,66 @@ public class RegistrationActivity extends AppCompatActivity{
             return;
         }
 
-        //if it passes all the validations
+        StringRequest stringRequest = new StringRequest(Request.Method.POST, URLs.URL_REGISTER,
+                new Response.Listener<String>() {
 
-        class RegisterUser extends AsyncTask<Void, Void, String> {
+                    @Override
+                    public void onResponse(String response) {
+                        progressBar.setVisibility(View.GONE);
 
-            private ProgressBar progressBar;
+                        try {
+                            //converting response to json object
+                            JSONObject obj = new JSONObject(response);
 
+                            //if no error in response
+                            if (!obj.getBoolean("error")) {
+                                Toast.makeText(getApplicationContext(), obj.getString("message"), Toast.LENGTH_SHORT).show();
+
+
+                                //creating a new user object
+                                User user = new User(
+                                        obj.getInt("id"),
+                                        obj.getString("name"),
+                                        obj.getString("email"),
+                                        obj.getBoolean("is_doctor"),
+                                        obj.getString("phone"),
+                                        obj.getString("password")
+                                );
+
+                                //storing the user in shared preferences
+                                SharedPrefManager.getInstance(getApplicationContext()).userLogin(user);
+
+                                //starting the profile activity
+                                finish();
+                                startActivity(new Intent(getApplicationContext(), MainActivity.class));
+                            } else {
+                                Toast.makeText(getApplicationContext(), obj.getString("message"), Toast.LENGTH_SHORT).show();
+                            }
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                },
+                new Response.ErrorListener() {
+                    @Override
+                    public void onErrorResponse(VolleyError error) {
+                        Toast.makeText(getApplicationContext(), error.getMessage(), Toast.LENGTH_SHORT).show();
+                    }
+                }) {
             @Override
-            protected String doInBackground(Void... voids) {
-                //creating request handler object
-                RequestHandler requestHandler = new RequestHandler();
-
-                //creating request parameters
-                HashMap<String, String> params = new HashMap<>();
+            protected Map<String, String> getParams() throws AuthFailureError {
+                Map<String, String> params = new HashMap<>();
                 params.put("name", name);
                 params.put("email", email);
                 //params.put("phone", phone);
                 params.put("password", password);
                 //params.put("is_doctor", usertype);
-
-
-                //returing the response
-                return requestHandler.sendPostRequest(URLs.URL_REGISTER, params);
+                return params;
             }
+        };
 
-            @Override
-            protected void onPreExecute() {
-                super.onPreExecute();
-                //displaying the progress bar while user registers on the server
-                progressBar = (ProgressBar) findViewById(R.id.progressBar);
-                progressBar.setVisibility(View.VISIBLE);
-            }
+        VolleySingleton.getInstance(this).addToRequestQueue(stringRequest);
 
-            @Override
-            protected void onPostExecute(String s) {
-                super.onPostExecute(s);
-                //hiding the progressbar after completion
-                progressBar.setVisibility(View.GONE);
-                Log.e("ssss",s);
-
-                try {
-                    //converting response to json object
-                    JSONObject obj = new JSONObject(s);
-
-                    //if no error in response
-                    if (!obj.getBoolean("error")) {
-                        Toast.makeText(getApplicationContext(), obj.getString("message"), Toast.LENGTH_SHORT).show();
-
-                        //creating a new user object
-                        User user = new User(
-                                obj.getInt("id"),
-                                obj.getString("name"),
-                                obj.getString("email"),
-                                obj.getBoolean("is_doctor"),
-                                obj.getString("phone"),
-                                obj.getString("password")
-                        );
-
-                        //storing the user in shared preferences
-                        SharedPrefManager.getInstance(getApplicationContext()).userLogin(user);
-
-                        //starting the profile activity
-                        finish();
-                        startActivity(new Intent(getApplicationContext(), MainActivity.class));
-                    } else {
-                        Toast.makeText(getApplicationContext(), "Some error occurred", Toast.LENGTH_SHORT).show();
-                    }
-                } catch (JSONException e) {
-                    e.printStackTrace();
-                }
-            }
-        }
-
-        //executing the async task
-        RegisterUser ru = new RegisterUser();
-        ru.execute();
     }
 
 }
