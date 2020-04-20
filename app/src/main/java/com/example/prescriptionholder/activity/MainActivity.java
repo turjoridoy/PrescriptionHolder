@@ -43,7 +43,7 @@ public class MainActivity extends AppCompatActivity {
         profile = findViewById(R.id.profile);
         logout = findViewById(R.id.logout);
 
-        getAllUser();
+        getAllUser(true);
         getAllPrescriptionOfThisUser(1);
 
 
@@ -86,7 +86,7 @@ public class MainActivity extends AppCompatActivity {
 
 
     }
-    public void getAllUser() {
+    public void getAllUser(final Boolean isDoctor) {
         final ArrayList<User> userList=new ArrayList<User>();
         RequestQueue queue = Volley.newRequestQueue(this);
 
@@ -107,8 +107,18 @@ public class MainActivity extends AppCompatActivity {
                                         obj.getBoolean("is_doctor"),
                                         obj.getString("password")
                                 );
-                                userList.add(user);
-                                Log.e("user name",user.getName());
+                                if(isDoctor){
+                                    if(user.getUsertype()){
+                                        userList.add(user);
+                                    }
+                                }else{
+                                    if(!user.getUsertype()){
+                                        userList.add(user);
+                                    }
+                                }
+
+                                Log.e("user list size",userList.size()+"");
+
                             }
 
                         }catch (Exception e){
